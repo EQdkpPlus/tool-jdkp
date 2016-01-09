@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Project:	EQDKP Plus
+	License:	Creative Commons - Attribution-Noncommercial-Share Alike 3.0 Unported
+	Link:		http://creativecommons.org/licenses/by-nc-sa/3.0/
+	
+	Began:		2010
+	Date:		$Date: 2010-07-24 01:26:57 +0200 (Sa, 24. Jul 2010) $
+	
+	Author:		$Author: kirax $
+	Copyright:	2006-2010 EQdkp-Plus Developer Team
+	Link:		http://eqdkp-plus.com
+	Package:	eqdkp-plus
+	Version:	$Rev: 8450 $
+	
+	$Id: data_export.xsd 8450 2010-07-23 23:26:57Z kirax $
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- simple elements -->
+<xs:element name="active" type="xs:int"/>
+<xs:element name="base_layout" type="xs:string"/>
+<xs:element name="class_id" type="xs:int"/>
+<xs:element name="class_name" type="xs:string"/>
+<xs:element name="date" type="xs:string"/>
+<xs:element name="desc" type="xs:string"/>
+<xs:element name="dkp_name" type="xs:string"/>
+<xs:element name="error" type="xs:string"/>
+<xs:element name="game_id" type="xs:string"/>
+<xs:element name="guild" type="xs:string"/>
+<xs:element name="hidden" type="xs:int"/>
+<xs:element name="id" type="xs:int"/>
+<xs:element name="itempool_id" type="xs:int"/>
+<xs:element name="language" type="xs:string"/>
+<xs:element name="layout" type="xs:string"/>
+<xs:element name="main_id" type="xs:int"/>
+<xs:element name="main_name" type="xs:string"/>
+<xs:element name="multidkp_id" type="xs:int"/>
+<xs:element name="name" type="xs:string"/>
+<xs:element name="points_adjustment" type="xs:double"/>
+<xs:element name="points_adjustment_html" type="xs:string"/>
+<xs:element name="points_adjustment_with_twink" type="xs:double"/>
+<xs:element name="points_adjustment_with_twink_html" type="xs:string"/>
+<xs:element name="points_current" type="xs:double"/>
+<xs:element name="points_current_html" type="xs:string"/>
+<xs:element name="points_current_with_twink" type="xs:double"/>
+<xs:element name="points_current_with_twink_html" type="xs:string"/>
+<xs:element name="points_earned" type="xs:double"/>
+<xs:element name="points_earned_html" type="xs:string"/>
+<xs:element name="points_earned_with_twink" type="xs:double"/>
+<xs:element name="points_earned_with_twink_html" type="xs:string"/>
+<xs:element name="points_spent" type="xs:double"/>
+<xs:element name="points_spent_html" type="xs:string"/>
+<xs:element name="points_spent_with_twink" type="xs:double"/>
+<xs:element name="points_spent_with_twink_html" type="xs:string"/>
+<xs:element name="race_id" type="xs:int"/>
+<xs:element name="race_name" type="xs:string"/>
+<xs:element name="server_name" type="xs:string"/>
+<xs:element name="server_loc" type="xs:string"/>
+<xs:element name="status" type="xs:string"/>
+<xs:element name="timestamp" type="xs:long"/>
+<xs:element name="total_items" type="xs:int"/>
+<xs:element name="total_players" type="xs:int"/>
+<xs:element name="value" type="xs:double"/>
+<xs:element name="version" type="xs:string"/>
+<xs:element name="with_twink" type="xs:int"/>
+<!-- end of simple elements -->
+
+<!-- combined elements -->
+<xs:element name="response">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="eqdkp" minOccurs="0"/>
+			<xs:element ref="game" minOccurs="0"/>
+			<xs:element ref="info" minOccurs="0"/>
+			<xs:element ref="players" minOccurs="0"/>
+			<xs:element ref="multidkp_pools" minOccurs="0"/>
+			<xs:element ref="itempools" minOccurs="0"/>
+			<xs:element ref="status"/>
+            <xs:element ref="error" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="eqdkp">
+	<xs:complexType>
+		<xs:sequence>
+			     <xs:element ref="name"/>
+			     <xs:element ref="guild"/>
+			     <xs:element ref="dkp_name"/>
+			     <xs:element ref="version"/>
+			     <xs:element ref="layout"/>
+			     <xs:element ref="base_layout"/>
+			</xs:sequence>
+		</xs:complexType>
+</xs:element>
+
+<xs:element name="game">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="name"/>
+			<xs:element ref="version"/>
+			<xs:element ref="language"/>
+			<xs:element ref="server_name"/>
+			<xs:element ref="server_loc"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="info">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="with_twink"/>
+			<xs:element ref="date"/>
+			<xs:element ref="timestamp"/>
+			<xs:element ref="total_players"/>
+			<xs:element ref="total_items"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="player">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="active"/>
+			<xs:element ref="hidden"/>
+			<xs:element ref="main_id"/>
+			<xs:element ref="main_name"/>
+			<xs:element ref="class_id"/>
+			<xs:element ref="class_name"/>
+			<xs:element ref="race_id" minOccurs="0"/>
+			<xs:element ref="race_name" minOccurs="0"/>
+			<xs:element ref="points"/>
+			<xs:element ref="items"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="multidkp_pool">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="desc"/>
+			<xs:element ref="events"/>
+			<xs:element ref="mdkp_itempools"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="itempool">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="desc"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="multidkp_points">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="multidkp_id"/>
+			<xs:element ref="points_current"/>
+			<xs:element ref="points_current_with_twink"/>
+			<xs:element ref="points_earned"/>
+			<xs:element ref="points_earned_with_twink"/>
+			<xs:element ref="points_spent"/>
+			<xs:element ref="points_spent_with_twink"/>
+			<xs:element ref="points_adjustment"/>
+			<xs:element ref="points_adjustment_with_twink"/>
+			<xs:element ref="points_current_html" minOccurs="0"/>
+			<xs:element ref="points_current_with_twink_html" minOccurs="0"/>
+			<xs:element ref="points_earned_html" minOccurs="0"/>
+			<xs:element ref="points_earned_with_twink_html" minOccurs="0"/>
+			<xs:element ref="points_spent_html" minOccurs="0"/>
+			<xs:element ref="points_spent_with_twink_html" minOccurs="0"/>
+			<xs:element ref="points_adjustment_html" minOccurs="0"/>
+			<xs:element ref="points_adjustment_with_twink_html" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="event">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="value"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="item">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="game_id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="value"/>
+			<xs:element ref="itempool_id"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+<!-- end of combined elements -->
+
+<!-- array elements -->
+<xs:element name="points">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="multidkp_points" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="players">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="player" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="items">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="item" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="multidkp_pools">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="multidkp_pool" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="events">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="mdkp_itempools">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="itempool_id" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="itempools">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="itempool" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+<!-- end of array elements -->
+
+</xs:schema>
