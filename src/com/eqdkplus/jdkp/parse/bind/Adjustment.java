@@ -25,10 +25,10 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{}game_id"/&gt;
- *         &lt;element ref="{}name"/&gt;
+ *         &lt;element ref="{}reason"/&gt;
  *         &lt;element ref="{}value"/&gt;
- *         &lt;element ref="{}itempool_id"/&gt;
+ *         &lt;element ref="{}timestamp"/&gt;
+ *         &lt;element ref="{}event_id"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -39,68 +39,43 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "gameId",
-    "name",
+    "reason",
     "value",
-    "itempoolId"
+    "timestamp",
+    "eventId"
 })
-@XmlRootElement(name = "item")
-public class Item {
+@XmlRootElement(name = "adjustment")
+public class Adjustment {
 
-    @XmlElement(name = "game_id", required = true)
-    protected String gameId;
     @XmlElement(required = true)
-    protected String name;
+    protected String reason;
     protected double value;
-    @XmlElement(name = "itempool_id")
-    protected int itempoolId;
+    protected long timestamp;
+    @XmlElement(name = "event_id")
+    protected int eventId;
 
     /**
-     * Ruft den Wert der gameId-Eigenschaft ab.
+     * Ruft den Wert der reason-Eigenschaft ab.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getGameId() {
-        return gameId;
+    public String getReason() {
+        return reason;
     }
 
     /**
-     * Legt den Wert der gameId-Eigenschaft fest.
+     * Legt den Wert der reason-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setGameId(String value) {
-        this.gameId = value;
-    }
-
-    /**
-     * Ruft den Wert der name-Eigenschaft ab.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Legt den Wert der name-Eigenschaft fest.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
+    public void setReason(String value) {
+        this.reason = value;
     }
 
     /**
@@ -120,19 +95,35 @@ public class Item {
     }
 
     /**
-     * Ruft den Wert der itempoolId-Eigenschaft ab.
+     * Ruft den Wert der timestamp-Eigenschaft ab.
      * 
      */
-    public int getItempoolId() {
-        return itempoolId;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
-     * Legt den Wert der itempoolId-Eigenschaft fest.
+     * Legt den Wert der timestamp-Eigenschaft fest.
      * 
      */
-    public void setItempoolId(int value) {
-        this.itempoolId = value;
+    public void setTimestamp(long value) {
+        this.timestamp = value;
+    }
+
+    /**
+     * Ruft den Wert der eventId-Eigenschaft ab.
+     * 
+     */
+    public int getEventId() {
+        return eventId;
+    }
+
+    /**
+     * Legt den Wert der eventId-Eigenschaft fest.
+     * 
+     */
+    public void setEventId(int value) {
+        this.eventId = value;
     }
 
 }

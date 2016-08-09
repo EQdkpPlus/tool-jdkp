@@ -31,16 +31,16 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _Result_QNAME = new QName("", "result");
-    private final static QName _Valid_QNAME = new QName("", "valid");
-    private final static QName _Sid_QNAME = new QName("", "sid");
-    private final static QName _Error_QNAME = new QName("", "error");
-    private final static QName _Status_QNAME = new QName("", "status");
-    private final static QName _Data_QNAME = new QName("", "data");
-    private final static QName _Password_QNAME = new QName("", "password");
-    private final static QName _User_QNAME = new QName("", "user");
-    private final static QName _End_QNAME = new QName("", "end");
-    private final static QName _Salt_QNAME = new QName("", "salt");
+    private final static QName _Result_QNAME = new QName("", "result"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Valid_QNAME = new QName("", "valid"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Sid_QNAME = new QName("", "sid"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Error_QNAME = new QName("", "error"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Status_QNAME = new QName("", "status"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Data_QNAME = new QName("", "data"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Password_QNAME = new QName("", "password"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _User_QNAME = new QName("", "user"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _End_QNAME = new QName("", "end"); //$NON-NLS-1$ //$NON-NLS-2$
+    private final static QName _Salt_QNAME = new QName("", "salt"); //$NON-NLS-1$ //$NON-NLS-2$
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.eqdkplus.jdkp.rest.bind

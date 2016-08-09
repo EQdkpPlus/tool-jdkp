@@ -18,6 +18,7 @@
 package com.eqdkplus.jdkp.control;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -31,6 +32,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -88,8 +91,8 @@ public class DownloadControl extends Control<Void, Object> {
 	return connectRec(null, url, -1);
     }
 
-    private HttpURLConnection connectRec(HttpURLConnection conn, URL url, int suggIdx) throws IOException,
-	    EQDKPException {
+    private HttpURLConnection connectRec(HttpURLConnection conn, URL url, int suggIdx)
+	    throws IOException, EQDKPException {
 	try {
 	    URL newUrl = null;
 	    if (suggIdx > -1) {
@@ -110,8 +113,8 @@ public class DownloadControl extends Control<Void, Object> {
 	    // search in suggested paths
 	    if (suggIdx < SUGG.length - 1) {
 		suggIdx++;
-		publish(String
-			.format(Messages.getString("DownloadControl.connectingTo"), new URL(url.getProtocol(), url.getHost(), SUGG[suggIdx] + url.getFile()))); //$NON-NLS-1$
+		publish(String.format(Messages.getString("DownloadControl.connectingTo"), //$NON-NLS-1$
+			new URL(url.getProtocol(), url.getHost(), SUGG[suggIdx] + url.getFile())));
 		return connectRec(conn, url, suggIdx);
 	    }
 	    // search in ./
@@ -151,8 +154,8 @@ public class DownloadControl extends Control<Void, Object> {
 
     private void initializeLog() throws IOException {
 	String logFileName = profile.getLocalPath().getAbsolutePath();
-	logFile = new FileWriter(logFileName.substring(0, logFileName.lastIndexOf(profile.getLocalPath().getName()))
-		+ JDKP_LOG);
+	logFile = new FileWriter(
+		logFileName.substring(0, logFileName.lastIndexOf(profile.getLocalPath().getName())) + JDKP_LOG);
     }
 
     public void download() throws IOException {
@@ -221,13 +224,13 @@ public class DownloadControl extends Control<Void, Object> {
 		SAXParseException spe = (SAXParseException) (e.getLinkedException());
 		SAXExceptionWrap f;
 		if (dataString.length() >= spe.getColumnNumber() + 120 && spe.getColumnNumber() >= 120) {
-		    f = new SAXExceptionWrap(e, Control.NEW_LINE
-			    + String.format(Messages.getString("DownloadControl.errorData"),
+		    f = new SAXExceptionWrap(e,
+			    Control.NEW_LINE + String.format(Messages.getString("DownloadControl.errorData"), //$NON-NLS-1$
 				    dataString.substring(spe.getColumnNumber() - 120, spe.getColumnNumber() + 20),
 				    dataString.substring(spe.getColumnNumber() - 20, spe.getColumnNumber() + 120)));
 		} else {
 		    f = new SAXExceptionWrap(e, Control.NEW_LINE
-			    + String.format(Messages.getString("DownloadControl.errorDataSingle"), dataString));
+			    + String.format(Messages.getString("DownloadControl.errorDataSingle"), dataString)); //$NON-NLS-1$
 		}
 		pendingErr = f;
 	    } else {
@@ -241,18 +244,16 @@ public class DownloadControl extends Control<Void, Object> {
 	}
 	assert data != null;
 
-	
-
 	if (data.getStatus().equals("0") && data.getError().equals("access denied")) { //$NON-NLS-1$ //$NON-NLS-2$
 
 	    publish(Messages.getString("DownloadControl.authenticating")); //$NON-NLS-1$
-	    
+
 	    if (!profile.getUsername().equals(Control.EMPTY_STRING)
 		    && profile.getPassword().equals(Control.EMPTY_STRING)) {
 		// <obsolete> if (!plainPassword.equals(Control.EMPTY_STRING)) {
 		try {
-		    profile.setPassword(getEncryptedPassword(profile.getEncoding(), rest, profile.getUsername(),
-			    plainPassword));
+		    profile.setPassword(
+			    getEncryptedPassword(profile.getEncoding(), rest, profile.getUsername(), plainPassword));
 		} catch (Exception e) {
 		    publish(FAILED);
 		    pendingErr = e;
@@ -262,7 +263,7 @@ public class DownloadControl extends Control<Void, Object> {
 	    try {
 		sid = rest.login().getV1();
 		int round = 0;
-		while (sid.equals("0") && round < 3) {
+		while (sid.equals("0") && round < 3) { //$NON-NLS-1$
 		    // login info is wrong
 		    profile.setPassword(Control.EMPTY_STRING);
 		    rest = rest == null ? new EqdkpRESTClient(profile) : rest;
@@ -299,7 +300,7 @@ public class DownloadControl extends Control<Void, Object> {
 		    publish(FAILED);
 		    return;
 		}
-		//	    url = new URL(url.toString() + "&s=" + sid); //$NON-NLS-1$
+		// url = new URL(url.toString() + "&s=" + sid); //$NON-NLS-1$
 	    } catch (Exception e) {
 		publish(FAILED);
 		pendingErr = e;
@@ -311,7 +312,7 @@ public class DownloadControl extends Control<Void, Object> {
 		url = new URL(url.toString() + "&s=" + sid); //$NON-NLS-1$
 	    }
 	    // } else {
-	    //		 //$NON-NLS-1$
+	    // //$NON-NLS-1$
 	    // }
 	    // conn = (HttpURLConnection) url.openConnection();
 	    // int rcode = conn.getResponseCode();
@@ -372,8 +373,8 @@ public class DownloadControl extends Control<Void, Object> {
 		publish(FAILED);
 		if (e.getLinkedException() instanceof SAXParseException) {
 		    SAXParseException spe = (SAXParseException) (e.getLinkedException());
-		    SAXExceptionWrap f = new SAXExceptionWrap(e, Control.NEW_LINE
-			    + String.format(Messages.getString("DownloadControl.errorData"),
+		    SAXExceptionWrap f = new SAXExceptionWrap(e,
+			    Control.NEW_LINE + String.format(Messages.getString("DownloadControl.errorData"), //$NON-NLS-1$
 				    dataString.substring(spe.getColumnNumber() - 120, spe.getColumnNumber() + 20),
 				    dataString.substring(spe.getColumnNumber() - 20, spe.getColumnNumber() + 120)));
 		    pendingErr = f;
@@ -422,10 +423,28 @@ public class DownloadControl extends Control<Void, Object> {
 	// br.close();
 
 	publish(Messages.getString("DownloadControl.saving")); //$NON-NLS-1$
-	FileOutputStream fos = new FileOutputStream(profile.getLocalPath());
-	OutputStreamWriter osw = new OutputStreamWriter(fos, profile.getEncoding());
-	osw.write(profile.getGameInterface().format(data));
-	osw.close();
+	
+//	try {
+//	    Files.write(profile.getLocalPath().toPath(), profile.getGameInterface().format(data).getBytes(),StandardOpenOption.TRUNCATE_EXISTING);
+//	} catch(Exception e) {
+//	    publish(Messages.getString("DownloadControl.IOExc")); //$NON-NLS-1$
+//	    publish(FAILED);
+//	    pendingErr = e;
+//	    return;
+//	}
+	
+	try (
+		FileOutputStream fos = new FileOutputStream(profile.getLocalPath().getPath(),false);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, profile.getEncoding());) {
+	    String toWrite=profile.getGameInterface().format(data);
+	    osw.write(toWrite);
+	} catch (IOException e) {
+	    publish(Messages.getString("DownloadControl.IOExc")); //$NON-NLS-1$
+	    publish(FAILED);
+	    pendingErr = e;
+	    return;
+	}
+
 	if (profile.getExecutePath() != null) {
 	    publish(Messages.getString("DownloadControl.startingGame")); //$NON-NLS-1$
 	    if (!execCmd()) {
@@ -461,8 +480,8 @@ public class DownloadControl extends Control<Void, Object> {
 
     @SuppressWarnings("unused")
     public static String getEncryptedPassword(String encoding, EqdkpRESTClient rest, String username,
-	    String plainPassword) throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException,
-	    SAXException, EQDKPException {
+	    String plainPassword)
+	    throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
 	MessageDigest md = MessageDigest.getInstance("SHA-512"); //$NON-NLS-1$
 	if (DEBUG_LEVEL == 1) {
 	    System.out.println(username);
@@ -488,8 +507,8 @@ public class DownloadControl extends Control<Void, Object> {
 	return password.toString();
     }
 
-    private boolean getAuth(EqdkpRESTClient rest, URL url) throws NoSuchAlgorithmException,
-	    UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
+    private boolean getAuth(EqdkpRESTClient rest, URL url)
+	    throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
 	AuthDialog ad = new AuthDialog(gui, url.getHost(), profile.getUsername());
 	ad.setVisible(true);
 	String user = ad.getUsername();
@@ -517,21 +536,22 @@ public class DownloadControl extends Control<Void, Object> {
 	    publish(Messages.getString("DownloadControl.downloadFailed")); //$NON-NLS-1$
 	    if (pendingErr instanceof SocketException || pendingErr instanceof SocketTimeoutException
 		    || pendingErr instanceof UnknownHostException) {
-		errorMessage(String.format(
-			Messages.getString("DownloadControl.connNotEstablished"), profile.getEqdkpURL().toString()) //$NON-NLS-1$
-			+ pendingErr.toString());
+		errorMessage(String.format(Messages.getString("DownloadControl.connNotEstablished"), //$NON-NLS-1$
+			profile.getEqdkpURL().toString()) + pendingErr.toString());
 	    } else if (pendingErr instanceof UnmarshalException) {
-		errorMessage(String.format(Messages.getString("DownloadControl.unexpXMLFormat"), pendingErr.toString())); //$NON-NLS-1$
+		errorMessage(
+			String.format(Messages.getString("DownloadControl.unexpXMLFormat"), pendingErr.toString())); //$NON-NLS-1$
 	    } else if (pendingErr instanceof SAXExceptionWrap) {
-		errorMessage(String.format(Messages.getString("DownloadControl.unexpXMLFormat"), pendingErr.toString()));
+		errorMessage(
+			String.format(Messages.getString("DownloadControl.unexpXMLFormat"), pendingErr.toString())); //$NON-NLS-1$
 	    } else if (pendingErr instanceof SAXException || pendingErr instanceof JAXBException) {
 		errorMessage(String.format(Messages.getString("DownloadControl.XMLExc"), pendingErr.toString())); //$NON-NLS-1$
 	    } else if (pendingErr instanceof EQDKPException) {
-		errorMessage(String.format(
-			Messages.getString("DownloadControl.EQDKPExc"), pendingErr.getLocalizedMessage())); //$NON-NLS-1$
+		errorMessage(String.format(Messages.getString("DownloadControl.EQDKPExc"), //$NON-NLS-1$
+			pendingErr.getLocalizedMessage()));
 	    } else if (pendingErr instanceof IOException) {
-		errorMessage(String.format(
-			Messages.getString("DownloadControl.IOExc"), pendingErr.getLocalizedMessage())); //$NON-NLS-1$
+		errorMessage(
+			String.format(Messages.getString("DownloadControl.IOExc"), pendingErr.getLocalizedMessage())); //$NON-NLS-1$
 	    } else {
 		pendingErr.printStackTrace();
 	    }

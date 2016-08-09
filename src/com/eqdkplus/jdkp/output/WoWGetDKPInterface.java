@@ -49,6 +49,7 @@ public class WoWGetDKPInterface extends GameInterface {
 
     @Override
     public String format(Response data) {
+	osb.truncate();
 	osb.append("getdkp_data = {");
 	tfield("eqdkp");
 	sfield("name").append(data.getEqdkp().getName()).append(SEND);

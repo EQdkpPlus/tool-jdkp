@@ -66,7 +66,7 @@ public class Gui extends JFrame {
     private static final String EXCHANGE_PHP = "/api.php"; //$NON-NLS-1$
     private static final String ARROW_RIGHT = " >>"; //$NON-NLS-1$
     private static final String ARROW_LEFT = " <<"; //$NON-NLS-1$
-    private static final String LICENSE = "<html>JDKP &copy; 2011-2015 - Henrik \"kirax\" Schmutz - kirax@eqdkp-plus.eu<br>licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported</html>"; //$NON-NLS-1$
+    private static final String LICENSE = "<html>JDKP &copy; 2011-2016 - Henrik \"kirax\" Schmutz - kirax@eqdkp-plus.eu<br>licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported</html>"; //$NON-NLS-1$
     private static final String EQDKP = "EQDKP"; //$NON-NLS-1$
     private static final String MAINICON_PATH = "res/mainicon.png"; //$NON-NLS-1$
     private static final String JDKPICON_PATH = "/res/jdkp.png"; //$NON-NLS-1$
@@ -92,6 +92,7 @@ public class Gui extends JFrame {
     private JComboBox<String> protocolChooser;
     private JTextField remoteField;
     private JLabel exchangeLabel;
+    private JLabel importerLabel;
     private JLabel localLabel;
     private JTextField localField;
     private JButton localStdPath;
@@ -167,6 +168,7 @@ public class Gui extends JFrame {
 	protocolChooser = new JComboBox<String>(PROTOCOLS.toArray(new String[0]));
 	remoteField = new JTextField();
 	exchangeLabel = new JLabel(EXCHANGE_PHP);
+	importerLabel=new JLabel(Messages.getString("Gui.importer")); //$NON-NLS-1$
 	localLabel = new JLabel(Messages.getString("Gui.local")); //$NON-NLS-1$
 	localField = new JTextField();
 	localStdPath = new JButton(Messages.getString("Gui.default")); //$NON-NLS-1$
@@ -569,8 +571,13 @@ public class Gui extends JFrame {
 	gbc.ipadx = 0;
 	fl.setConstraints(exchangeLabel, gbc);
 	field.add(exchangeLabel);
-
+	
 	gbc.gridy = 2;
+	gbc.insets=FOURFIVE;
+	fl.setConstraints(importerLabel,gbc);
+	field.add(importerLabel);
+	
+	gbc.gridy=3;
 	// gbc.gridwidth = 1;
 	fl.setConstraints(authLabel, gbc);
 	field.add(authLabel);

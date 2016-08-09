@@ -28,6 +28,10 @@ public class OutputStringBuilder {
 	this.sb = new StringBuilder();
 	this.of = of;
     }
+    
+    public void truncate() {
+	sb = new StringBuilder();
+    }
 
     public OutputStringBuilder append(String str) {
 	boolean match = false;

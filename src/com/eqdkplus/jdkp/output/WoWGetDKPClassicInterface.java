@@ -15,6 +15,7 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	super();
     }
     
+    
     @Override
     public String getName() {
 	return "WoW GetDKP LUA (Classic)";
@@ -22,12 +23,11 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 
     @Override
     public String format(Response data) {
-
+	osb.truncate();
 	HashMap<Integer, MultidkpPool> multiDkpPools = new HashMap<Integer, MultidkpPool>();
 	for (MultidkpPool mp : data.getMultidkpPools().getMultidkpPool()) {
 	    multiDkpPools.put(mp.getId(), mp);
 	}
-
 	osb.append("multiTable = {");
 	if (data.getMultidkpPools().getMultidkpPool().size() > 1) {
 	    for (int i = 0; i < data.getMultidkpPools().getMultidkpPool().size(); i++) {

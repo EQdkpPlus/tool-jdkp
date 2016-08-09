@@ -28,7 +28,7 @@ public class SAXExceptionWrap extends SAXException {
     @Override
     public String toString() {
 	if (exception != null) {
-	    return super.toString() + "\n" + exception.toString() + "\n" + additionalString;
+	    return super.toString() + "\n" + exception.toString() + "\n" + additionalString; //$NON-NLS-1$ //$NON-NLS-2$
 	} else {
 	    return super.toString();
 	}

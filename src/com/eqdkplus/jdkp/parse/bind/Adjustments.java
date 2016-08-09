@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{}item" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{}adjustment" maxOccurs="unbounded" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -37,40 +37,40 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "item"
+    "adjustment"
 })
-@XmlRootElement(name = "items")
-public class Items {
+@XmlRootElement(name = "adjustments")
+public class Adjustments {
 
-    protected List<Item> item;
+    protected List<Adjustment> adjustment;
 
     /**
-     * Gets the value of the item property.
+     * Gets the value of the adjustment property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the item property.
+     * This is why there is not a <CODE>set</CODE> method for the adjustment property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getItem().add(newItem);
+     *    getAdjustment().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Item }
+     * {@link Adjustment }
      * 
      * 
      */
-    public List<Item> getItem() {
-        if (item == null) {
-            item = new ArrayList<Item>();
+    public List<Adjustment> getAdjustment() {
+        if (adjustment == null) {
+            adjustment = new ArrayList<Adjustment>();
         }
-        return this.item;
+        return this.adjustment;
     }
 
 }
