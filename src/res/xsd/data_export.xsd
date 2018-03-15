@@ -28,6 +28,7 @@
 <xs:element name="desc" type="xs:string"/>
 <xs:element name="dkp_name" type="xs:string"/>
 <xs:element name="error" type="xs:string"/>
+<xs:element name="event_id" type="xs:int"/>
 <xs:element name="game_id" type="xs:string"/>
 <xs:element name="guild" type="xs:string"/>
 <xs:element name="hidden" type="xs:int"/>
@@ -57,6 +58,7 @@
 <xs:element name="points_spent_with_twink_html" type="xs:string"/>
 <xs:element name="race_id" type="xs:int"/>
 <xs:element name="race_name" type="xs:string"/>
+<xs:element name="reason" type="xs:string"/>
 <xs:element name="server_name" type="xs:string"/>
 <xs:element name="server_loc" type="xs:string"/>
 <xs:element name="status" type="xs:string"/>
@@ -136,6 +138,7 @@
 			<xs:element ref="race_name" minOccurs="0"/>
 			<xs:element ref="points"/>
 			<xs:element ref="items"/>
+			<xs:element ref="adjustments" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:element>
@@ -206,6 +209,17 @@
 		</xs:sequence>
 	</xs:complexType>
 </xs:element>
+
+<xs:element name="adjustment">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element ref="reason"/>
+            <xs:element ref="value"/>
+            <xs:element ref="timestamp"/>
+            <xs:element ref="event_id"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
 <!-- end of combined elements -->
 
 <!-- array elements -->
@@ -231,6 +245,14 @@
 			<xs:element ref="item" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
+</xs:element>
+
+<xs:element name="adjustments">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element ref="adjustment" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:element>
 
 <xs:element name="multidkp_pools">

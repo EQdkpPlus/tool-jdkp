@@ -14,8 +14,7 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
     public WoWGetDKPClassicInterface() {
 	super();
     }
-    
-    
+
     @Override
     public String getName() {
 	return "WoW GetDKP LUA (Classic)";
@@ -51,7 +50,8 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	    }
 	    osb.append('}');
 	} else {
-	    osb.append("[1]= { [\"dkp\"] = {\n[\"name\"] = \"dkp\",\n[\"disc\"] = \"Raid DKP\",\n[\"events\"] = \" \"\n},\n},\n}");
+	    osb.append(
+		    "[1]= { [\"dkp\"] = {\n[\"name\"] = \"dkp\",\n[\"disc\"] = \"Raid DKP\",\n[\"events\"] = \" \"\n},\n},\n}");
 	}
 	osb.append("DKPInfo = {");
 	sfield("date").append(data.getInfo().getDate()).append(SEND);
@@ -66,11 +66,11 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	osb.append("gdkp = {");
 	tfield("players");
 	for (Player p : data.getPlayers().getPlayer()) {
-	    tfield(p.getName());
+	    tfield(formatPlayerNameWithRealm(p.getName(), data.getGame().getServerName()));
 	    int currentDKP = 0;
 	    for (MultidkpPoints mp : p.getPoints().getMultidkpPoints()) {
-		currentDKP += data.getInfo().getWithTwink() == 1 ? mp.getPointsCurrentWithTwink() : mp
-			.getPointsCurrent();
+		currentDKP += data.getInfo().getWithTwink() == 1 ? mp.getPointsCurrentWithTwink()
+			: mp.getPointsCurrent();
 	    }
 	    field("DKP").append(currentDKP).append(END);
 	    String mpName = "dkp";
@@ -82,8 +82,8 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 		field(mpName + "_earned").append(
 			data.getInfo().getWithTwink() == 1 ? mp.getPointsEarnedWithTwink() : mp.getPointsEarned())
 			.append(END);
-		field(mpName + "_spend").append(
-			data.getInfo().getWithTwink() == 1 ? mp.getPointsSpentWithTwink() : mp.getPointsSpent())
+		field(mpName + "_spend")
+			.append(data.getInfo().getWithTwink() == 1 ? mp.getPointsSpentWithTwink() : mp.getPointsSpent())
 			.append(END);
 		// TODO
 		field(mpName + "_adjust").append(0).append(END);
@@ -116,5 +116,21 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	}
 	osb.append('}');
 	return osb.toString();
+    }
+
+    private static String formatPlayerNameWithRealm(String nameWithRealm, String ownRealm) {
+	String nameWithRealmWithoutWhitespace = nameWithRealm.replaceAll("\\s", "");
+	String ownRealmWithoutWhitespace = ownRealm.replaceAll("\\s", "");
+	int realmDividerIndex = nameWithRealmWithoutWhitespace.indexOf('-');
+	if (realmDividerIndex == -1) {
+	    return nameWithRealmWithoutWhitespace;
+	} else {
+	    String playerRealm = nameWithRealmWithoutWhitespace.substring(realmDividerIndex + 1);
+	    if (playerRealm.equalsIgnoreCase(ownRealmWithoutWhitespace)) {
+		return nameWithRealmWithoutWhitespace.substring(0, realmDividerIndex);
+	    } else {
+		return nameWithRealmWithoutWhitespace;
+	    }
+	}
     }
 }

@@ -104,7 +104,7 @@ public class Profile implements Serializable, Comparable<Profile> {
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
 	    GameInterface gameInterface, File executePath) {
-	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath,"");
+	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath,""); //$NON-NLS-1$
     }
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
@@ -234,7 +234,7 @@ public class Profile implements Serializable, Comparable<Profile> {
     }
     
     public void loadInterface() {
-	if (this.gi==null && this.gameInterface!="") {
+	if (this.gi==null && this.gameInterface!="") { //$NON-NLS-1$
 	    try {
 		this.gi=(GameInterface) Class.forName(this.gameInterface).newInstance();
 	    } catch (Exception e) {
