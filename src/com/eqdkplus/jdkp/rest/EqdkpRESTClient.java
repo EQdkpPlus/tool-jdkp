@@ -91,6 +91,7 @@ public class EqdkpRESTClient {
 	}
 	return Base64.base64Decode(re.getSalt());
     }
+    
 
     /**
      * Returns a Pair(sid,sid_end) for the specified login, both empty if the

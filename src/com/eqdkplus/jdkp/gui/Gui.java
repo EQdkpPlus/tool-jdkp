@@ -62,11 +62,13 @@ public class Gui extends JFrame {
 
     private static final String PW_DUMMY = "********"; //$NON-NLS-1$
     private static final String JDKP = "JDKP"; //$NON-NLS-1$
-    private static final String JDKP_HP = "http://eqdkp-plus.eu"; //$NON-NLS-1$
+    private static final String JDKP_HP = "https://eqdkp-plus.eu"; //$NON-NLS-1$
     private static final String EXCHANGE_PHP = "/api.php"; //$NON-NLS-1$
     private static final String ARROW_RIGHT = " >>"; //$NON-NLS-1$
     private static final String ARROW_LEFT = " <<"; //$NON-NLS-1$
-    private static final String LICENSE = "<html>JDKP &copy; 2011-2016 - Henrik \"kirax\" Schmutz - kirax@eqdkp-plus.eu<br>licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported</html>"; //$NON-NLS-1$
+    private static final String JDKP_VERSION = "2.0.0"; //$NON-NLS-1$
+    private static final String JDKP_LICENSE = "licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported"; //$NON-NLS-1$
+    private static final String JDKP_COPYRIGHT = "JDKP &copy; 2011-2018 - Henrik 'kirax' Schmutz - kirax@eqdkp-plus.eu"; //$NON-NLS-1$
     private static final String EQDKP = "EQDKP"; //$NON-NLS-1$
     private static final String MAINICON_PATH = "res/mainicon.png"; //$NON-NLS-1$
     private static final String JDKPICON_PATH = "/res/jdkp.png"; //$NON-NLS-1$
@@ -108,6 +110,8 @@ public class Gui extends JFrame {
     private JLabel authLabel;
     private JLabel usernameLabel;
     private JTextField usernameField;
+    private JLabel tokenLabel;
+    private JTextField tokenField;
     private JLabel passwordLabel;
     private JPasswordField passwordField;
     private JLabel timeoutLabel;
@@ -213,6 +217,8 @@ public class Gui extends JFrame {
 	passwordField = new JPasswordField();
 	timeoutLabel = new JLabel(Messages.getString("Gui.cTimeOut")); //$NON-NLS-1$
 	timeoutField = new JTextField();
+	tokenLabel = new JLabel(Messages.getString("Gui.token"));
+	tokenField = new JTextField();	
 	downloadButton = new JButton(Messages.getString("Gui.download")); //$NON-NLS-1$
 	hintLabel = new JLabel();
 	field = new JPanel();
@@ -224,7 +230,7 @@ public class Gui extends JFrame {
 	fileChooser = new JFileChooser();
 	currentJob = new Job(Control.CHECKED, Messages.getString("Gui.ready"), -1); //$NON-NLS-1$
 	coloredElements = new HashMap<JComponent, Color>();
-	copyright = new JLabel(LICENSE);
+	copyright = new JLabel("<html>v"+JDKP_VERSION + " - " + JDKP_COPYRIGHT+ "<br />"+JDKP_LICENSE+"</html>");
 	copyright.setFont(copyright.getFont().deriveFont(Font.PLAIN, 9f));
 
 	field.setBorder(BorderFactory.createTitledBorder(EQDKP));
@@ -239,6 +245,7 @@ public class Gui extends JFrame {
 	hintLabel.setVisible(false);
 	usernameLabel.setIcon(Control.USERICON);
 	passwordLabel.setIcon(Control.PASSICON);
+	tokenLabel.setIcon(Control.PASSICON);
 	timeoutLabel.setIcon(Control.CLOCK);
 	profileLabel.setIcon(Control.PROFILEICON);
 	delProfileButton.setIcon(Control.DELETEICON);
@@ -412,6 +419,10 @@ public class Gui extends JFrame {
     public void setPassword() {
 	this.passwordField.setText(PW_DUMMY);
     }
+    
+    public void setToken(String token) {
+    	this.tokenField.setText(token);
+    }
 
     private void fillFieldsByProfile() {
 	if (profileChooser.getSelectedItem() != null) {
@@ -433,6 +444,8 @@ public class Gui extends JFrame {
 		localField.setText(Control.EMPTY_STRING);
 	    }
 	    usernameField.setText(p.getUsername());
+	    tokenField.setText(p.getToken());
+	    
 	    passwordField
 		    .setText(p.getPassword() == null || p.getPassword().equals(Control.EMPTY_STRING) ? Control.EMPTY_STRING
 			    : PW_DUMMY);
@@ -607,6 +620,20 @@ public class Gui extends JFrame {
 	gbc.weightx = 1;
 	afl.setConstraints(passwordField, gbc);
 	authfield.add(passwordField);
+	
+	gbc.gridy = 2;
+	gbc.weightx = 0;
+	gbc.gridwidth = 1;
+	gbc.insets = THREEZEROFIVE;
+	afl.setConstraints(tokenLabel, gbc);
+	authfield.add(tokenLabel);
+	
+	//gbc.insets = ZEROFIVEZEROZERO;
+	gbc.weightx = 1;
+	gbc.weighty = 3;
+	gbc.gridwidth = 3;
+	afl.setConstraints(tokenField, gbc);
+	authfield.add(tokenField);
 
 	gbc.insets = FOURFIVE;
 	gbc.weightx = 0;
@@ -775,7 +802,7 @@ public class Gui extends JFrame {
 			Profile currentProfile = new Profile(Control.LAST, url, timeoutField.getText().equals(
 				Control.EMPTY_STRING) ? DownloadControl.DEFAULT_CONNECTION_TIMEOUT_MS : Integer
 				.parseInt(timeoutField.getText()) * 1000, Control.CHARSET, target,
-				(GameInterface) formatChooser.getSelectedItem(), execute, usernameField.getText());
+				(GameInterface) formatChooser.getSelectedItem(), execute, usernameField.getText(), tokenField.getText());
 			Profile equalProfile = null;
 			// check whether we have a new profile and ask to save
 			// it

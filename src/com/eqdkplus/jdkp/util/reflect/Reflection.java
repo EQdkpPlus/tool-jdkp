@@ -62,7 +62,7 @@ public class Reflection {
 	for (int i = 0; i < classFiles.length; i++) {
 	    try {
 		Object instance = ucl.loadClass(classFiles[i].substring(0, classFiles[i].lastIndexOf('.')))
-			.newInstance();
+			.getConstructor().newInstance();
 		if (superClass.isAssignableFrom(instance.getClass())) {
 		    objects[count] = instance;
 		    count++;

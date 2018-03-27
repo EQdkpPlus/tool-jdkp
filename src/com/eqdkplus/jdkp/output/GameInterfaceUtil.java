@@ -68,7 +68,7 @@ public final class GameInterfaceUtil {
 	    }
 	    if (GameInterface.class.isAssignableFrom(c)) {
 		try {
-		    instances[count] = (GameInterface) c.newInstance();
+		    instances[count] = (GameInterface) c.getConstructor().newInstance();
 		    count++;
 		} catch (Exception e) {
 		    // simply ignore it then...

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -114,8 +115,14 @@ public class ImportControl extends Control<Void, Object> {
 		    .getString("ImportControl.cannotImportAlreadyLoaded"), f.getName()), //$NON-NLS-1$
 		    Messages.getString("Gui.error"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 	} else if (GameInterface.class.isAssignableFrom(newInterface)) {
-	    GameInterface gi = (GameInterface) newInterface.newInstance();
-	    gui.addInterface(gi);
+	    GameInterface gi = null;
+		try {
+			gi = (GameInterface) newInterface.getConstructor().newInstance();
+		    gui.addInterface(gi);
+		} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	    publish(CHECKED);
 	    publish(String.format(Messages.getString("ImportControl.importSuccess"), gi.getName())); //$NON-NLS-1$
 	} else {

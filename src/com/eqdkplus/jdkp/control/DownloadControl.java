@@ -18,7 +18,6 @@
 package com.eqdkplus.jdkp.control;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -32,8 +31,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -50,6 +47,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.eqdkplus.jdkp.gui.AuthDialog;
+import com.eqdkplus.jdkp.gui.AuthTokenDialog;
 import com.eqdkplus.jdkp.gui.Gui;
 import com.eqdkplus.jdkp.gui.Messages;
 import com.eqdkplus.jdkp.parse.Parser;
@@ -72,7 +70,6 @@ public class DownloadControl extends Control<Void, Object> {
     private final Gui gui;
     private int contentLength;
     private String plainPassword;
-    private String encryptedPassword;
     private FileWriter logFile;
     private EqdkpRESTClient rest;
     private String sid;
@@ -158,7 +155,8 @@ public class DownloadControl extends Control<Void, Object> {
 		logFileName.substring(0, logFileName.lastIndexOf(profile.getLocalPath().getName())) + JDKP_LOG);
     }
 
-    public void download() throws IOException {
+    @SuppressWarnings("unused")
+	public void download() throws IOException {
 	initializeLog();
 	log("JDKP download log file"); //$NON-NLS-1$
 	log("System time: " + DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format(new Date())); //$NON-NLS-1$
@@ -247,18 +245,50 @@ public class DownloadControl extends Control<Void, Object> {
 	if (data.getStatus().equals("0") && data.getError().equals("access denied")) { //$NON-NLS-1$ //$NON-NLS-2$
 
 	    publish(Messages.getString("DownloadControl.authenticating")); //$NON-NLS-1$
+	    
+	    Boolean blnUseToken = false;
+	    
+	    if(!profile.getToken().equals(Control.EMPTY_STRING)) {
+	    	url = new URL(url.toString() + "&atoken=" + profile.getToken() + "&atype=api"); //$NON-NLS-1$
+	    	blnUseToken = true;
+	    } else {
+    		
+    		//Try if there is an salt method first (< EQdkp Plus 2.3)
+	    	Boolean blnThereIsSalt = false;
+    		try {
+    			String testsalt = rest.getSalt("test");
+    			blnThereIsSalt = true;
+    		} catch(Exception e) {
+    			
+    			if(e.getMessage().equals("function not found")){
+    				//We need an API Token here
+    				blnUseToken = true;
+    				
+    				 boolean a = false;
+    				    try {
+    				    	a = getTokenAuth(rest, url);
+    				    } catch (Exception ex) {
+    				    	publish(FAILED);
+    				    	pendingErr = ex;
+    				    	return;
+    				    }
+    				url = new URL(url.toString() + "&atoken=" + profile.getToken() + "&atype=api"); //$NON-NLS-1$
+    				gui.setToken(profile.getToken());
+    			}
+    		}
+	    	
+	    	
+	    if(blnThereIsSalt) {	
+	    if (!profile.getUsername().equals(Control.EMPTY_STRING) && profile.getPassword().equals(Control.EMPTY_STRING)) {
 
-	    if (!profile.getUsername().equals(Control.EMPTY_STRING)
-		    && profile.getPassword().equals(Control.EMPTY_STRING)) {
-		// <obsolete> if (!plainPassword.equals(Control.EMPTY_STRING)) {
-		try {
-		    profile.setPassword(
-			    getEncryptedPassword(profile.getEncoding(), rest, profile.getUsername(), plainPassword));
-		} catch (Exception e) {
-		    publish(FAILED);
-		    pendingErr = e;
-		    return;
-		}
+			try {
+			    profile.setPassword(
+				    getEncryptedPassword(profile.getEncoding(), rest, profile.getUsername(), plainPassword));
+			} catch (Exception e) {
+			    publish(FAILED);
+			    pendingErr = e;
+			    return;
+			}
 	    }
 	    try {
 		sid = rest.login().getV1();
@@ -352,6 +382,9 @@ public class DownloadControl extends Control<Void, Object> {
 	     * .getString("DownloadControl.notApprPerm")); //$NON-NLS-1$ return;
 	     * } **********************************************
 	     */
+	    
+	    }// end there is salt
+	    } //end if there is no token 
 	    publish(String.format(Messages.getString("DownloadControl.downloadFrom"), url.getHost())); //$NON-NLS-1$
 
 	    try {
@@ -392,12 +425,19 @@ public class DownloadControl extends Control<Void, Object> {
 		publish(Messages.getString("DownloadControl.authFailed")); //$NON-NLS-1$
 		publish(FAILED);
 		pendingErr = new EQDKPException(Messages.getString("DownloadControl.notApprPerm")); //$NON-NLS-1$
+		
+		if(blnUseToken) {
+			profile.setToken(Control.EMPTY_STRING);
+			gui.setToken("");
+		}
+		
 		return;
 	    }
 	}
 
 	if (gui.getLastUsedProfile() != null) {
 	    gui.getLastUsedProfile().setPassword(profile.getPassword());
+	    gui.getLastUsedProfile().setToken(profile.getToken());
 	    gui.getLastUsedProfile().save(Control.PROFILE_PATH, true);
 	}
 	profile.save(Control.PROFILE_PATH, true);
@@ -509,24 +549,46 @@ public class DownloadControl extends Control<Void, Object> {
 
     private boolean getAuth(EqdkpRESTClient rest, URL url)
 	    throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
-	AuthDialog ad = new AuthDialog(gui, url.getHost(), profile.getUsername());
-	ad.setVisible(true);
-	String user = ad.getUsername();
-	String pw = ad.getPassword();
-	// Pair<String, String> authInfo = ad.getAuthentication(); unsafe
-	if (user.equals(Control.EMPTY_STRING) || pw.equals(Control.EMPTY_STRING)) {
-	    user = null;
-	    pw = null;
-	    return false;
-	}
-	profile.setUsername(user);
-	profile.setPassword(getEncryptedPassword(profile.getEncoding(), rest, user, pw));
-
-	ad.dispose();
-	user = null;
-	pw = null;
-	return true;
+    	
+		AuthDialog ad = new AuthDialog(gui, url.getHost(), profile.getUsername());
+		ad.setVisible(true);
+		String user = ad.getUsername();
+		String pw = ad.getPassword();
+		// Pair<String, String> authInfo = ad.getAuthentication(); unsafe
+		if (user.equals(Control.EMPTY_STRING) || pw.equals(Control.EMPTY_STRING)) {
+		    user = null;
+		    pw = null;
+		    return false;
+		}
+		profile.setUsername(user);
+		profile.setPassword(getEncryptedPassword(profile.getEncoding(), rest, user, pw));
+	
+		ad.dispose();
+		user = null;
+		pw = null;
+		return true;
     }
+    
+    private boolean getTokenAuth(EqdkpRESTClient rest, URL url)
+    	throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
+    	
+    	AuthTokenDialog ad = new AuthTokenDialog(gui, url.getHost(), profile.getToken());
+    	ad.setVisible(true);
+    	
+    	String token = ad.getToken();
+    	if(token.equals(Control.EMPTY_STRING)) {
+    		token = null;
+    		return false;
+    	}
+    	profile.setToken(token);
+    	
+    	ad.dispose();
+    	token = null;
+       	
+    	return true;
+    }
+    
+    
 
     @Override
     protected void done() {

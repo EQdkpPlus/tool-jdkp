@@ -22,8 +22,10 @@ import java.net.URL;
 
 public final class XSD {
 
-    private static final String REST_XSD_PATH = "/core/xsd/rest.xsd"; //$NON-NLS-1$
-    private static final String DKP_XSD_PATH = "/core/xsd/data_export.xsd"; //$NON-NLS-1$
+    @SuppressWarnings("unused")
+	private static final String REST_XSD_PATH = "/core/xsd/rest.xsd"; //$NON-NLS-1$
+    @SuppressWarnings("unused")
+	private static final String DKP_XSD_PATH = "/core/xsd/data_export.xsd"; //$NON-NLS-1$
 
     public static URL getRESTXSDURL(URL root) {
 	// return getXSDURL(root, REST_XSD_PATH);
@@ -35,7 +37,8 @@ public final class XSD {
 	return XSD.class.getClassLoader().getResource("res/xsd/data_export.xsd"); //$NON-NLS-1$
     }
 
-    private static URL getXSDURL(URL root, String XSDPath) {
+    @SuppressWarnings("unused")
+	private static URL getXSDURL(URL root, String XSDPath) {
 	try {
 	    return new URL(root.getProtocol(), root.getHost(), root.getPath().substring(0,
 		    root.getPath().lastIndexOf('/'))

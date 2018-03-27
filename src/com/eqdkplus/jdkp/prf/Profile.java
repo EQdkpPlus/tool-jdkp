@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
@@ -64,7 +63,8 @@ public class Profile implements Serializable, Comparable<Profile> {
     private File profileFile;
     private String username;
     private String password;
-
+    private String token;
+    
     @Override
     public boolean equals(Object o) {
 	if (o == null || !(o instanceof Profile)) {
@@ -79,6 +79,7 @@ public class Profile implements Serializable, Comparable<Profile> {
 		&& this.localPath.equals(p.localPath)
 		&& this.gameInterface.equals(p.gameInterface)
 		&& this.username.equals(p.username)
+		&& this.token.equals(p.token)
 		&& ((this.executePath == null && p.executePath == null)
 			|| (this.executePath != null && this.executePath.equals(p.executePath)) || (p.executePath != null && p.executePath
 			.equals(this.executePath)))
@@ -88,7 +89,7 @@ public class Profile implements Serializable, Comparable<Profile> {
     }
 
     public Profile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
-	    GameInterface gameInterface, File executePath, String username) {
+	    GameInterface gameInterface, File executePath, String username, String token) {
 	this.name = name;
 	this.eqdkpURL = eqdkpURL;
 	this.connectionTimeout = connectionTimeout;
@@ -99,18 +100,19 @@ public class Profile implements Serializable, Comparable<Profile> {
 	this.executePath = executePath;
 	this.used = 0;
 	this.username = username;
+	this.token = token;
 	this.password = Control.EMPTY_STRING;
     }
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
 	    GameInterface gameInterface, File executePath) {
-	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath,""); //$NON-NLS-1$
+	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath,"", ""); //$NON-NLS-1$
     }
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
-	    GameInterface gameInterface, File executePath, String username, String plainPassword) throws NoSuchAlgorithmException, JAXBException, SAXException, EQDKPException, FileNotFoundException, IOException {
+	    GameInterface gameInterface, File executePath, String username, String plainPassword, String token) throws NoSuchAlgorithmException, JAXBException, SAXException, EQDKPException, FileNotFoundException, IOException {
 	
-	Profile p = new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath, username);
+	Profile p = new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath, username, token);
 	EqdkpRESTClient rest = new EqdkpRESTClient(p);
 	String encryptedPassword = DownloadControl.getEncryptedPassword(p.encoding, rest, username, plainPassword);
 	plainPassword=null;
@@ -213,6 +215,20 @@ public class Profile implements Serializable, Comparable<Profile> {
     public void setUsername(String username) {
 	this.username = username;
     }
+    
+    /**
+     * @param API token
+     */
+    public void setToken(String token) {
+    	this.token = token;
+    }
+    
+    /**
+     * @return the API token
+     */
+    public String getToken() {
+    	return token; 
+    }
 
     /**
      * @return the password
@@ -236,7 +252,9 @@ public class Profile implements Serializable, Comparable<Profile> {
     public void loadInterface() {
 	if (this.gi==null && this.gameInterface!="") { //$NON-NLS-1$
 	    try {
-		this.gi=(GameInterface) Class.forName(this.gameInterface).newInstance();
+	    	
+	    	
+		this.gi=(GameInterface) Class.forName(this.gameInterface).getConstructor().newInstance();
 	    } catch (Exception e) {
 		this.gi=new StandardInterface();
 	    }
@@ -286,7 +304,7 @@ public class Profile implements Serializable, Comparable<Profile> {
 	    }
 	    profilesLazy[count].profileFile = files[i];
 	    try {
-		profilesLazy[count].gi = (GameInterface) Class.forName(profilesLazy[count].gameInterface).newInstance();
+		profilesLazy[count].gi = (GameInterface) Class.forName(profilesLazy[count].gameInterface).getConstructor().newInstance();
 	    } catch (InstantiationException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -305,7 +323,26 @@ public class Profile implements Serializable, Comparable<Profile> {
 		count--;
 		fis.close();
 		ois.close();
-	    }
+	    } catch (IllegalArgumentException e) {
+	    	e.printStackTrace();
+			count--;
+			fis.close();
+			ois.close();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			count--;
+			fis.close();
+			ois.close();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			count--;
+			fis.close();
+			ois.close();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			count--;
+			fis.close();
+			ois.close();		}
 	    count++;
 	}
 	Profile[] profiles;
