@@ -66,7 +66,7 @@ public class Gui extends JFrame {
     private static final String EXCHANGE_PHP = "/api.php"; //$NON-NLS-1$
     private static final String ARROW_RIGHT = " >>"; //$NON-NLS-1$
     private static final String ARROW_LEFT = " <<"; //$NON-NLS-1$
-    private static final String JDKP_VERSION = "2.0.0"; //$NON-NLS-1$
+    private static final String JDKP_VERSION = "2.0.2"; //$NON-NLS-1$
     private static final String JDKP_LICENSE = "licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported"; //$NON-NLS-1$
     private static final String JDKP_COPYRIGHT = "JDKP &copy; 2011-2018 - Henrik 'kirax' Schmutz - kirax@eqdkp-plus.eu"; //$NON-NLS-1$
     private static final String EQDKP = "EQDKP"; //$NON-NLS-1$

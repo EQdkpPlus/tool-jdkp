@@ -84,8 +84,13 @@ public class MultidkpPool {
      *     
      */
     public String getName() {
-        return name;
+        return name.replaceAll("['\"]", "");
     }
+    
+    public String getSanitizedName() {
+    	return name.replaceAll("[^a-zA-Z0-9_-]+","_");
+    }
+    
 
     /**
      * Legt den Wert der name-Eigenschaft fest.
@@ -108,7 +113,7 @@ public class MultidkpPool {
      *     
      */
     public String getDesc() {
-        return desc;
+        return desc.replaceAll("['\"]", "");
     }
 
     /**

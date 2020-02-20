@@ -32,10 +32,10 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	    for (int i = 0; i < data.getMultidkpPools().getMultidkpPool().size(); i++) {
 		MultidkpPool mp = data.getMultidkpPools().getMultidkpPool().get(i);
 		itfield(i + 1);
-		tfield(mp.getName());
+		tfield(mp.getSanitizedName());
 		field("id").append(mp.getId()).append(END);
 		sfield("name").append(mp.getName()).append(SEND);
-		sfield("desc").append(mp.getDesc()).append(SEND);
+		sfield("disc").append(mp.getDesc()).append(SEND);
 		sfield("events");
 		for (int j = 0; j < mp.getEvents().getEvent().size(); j++) {
 		    osb.append(mp.getEvents().getEvent().get(j).getName());
@@ -45,13 +45,22 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 			osb.append('\"');
 		    }
 		}
+		if(mp.getEvents().getEvent().size() == 0) {
+			osb.append('\"');
+		}
+		
 		tend();
 		tend();
 	    }
 	    osb.append('}');
 	} else {
+		MultidkpPool mp = data.getMultidkpPools().getMultidkpPool().get(0);
 	    osb.append(
-		    "[1]= { [\"dkp\"] = {\n[\"name\"] = \"dkp\",\n[\"disc\"] = \"Raid DKP\",\n[\"events\"] = \" \"\n},\n},\n}");
+		    "[1]= { [\"dkp\"] = {\n[\"name\"] = \"");
+	    osb.append(mp.getName());
+	    osb.append("\",\n[\"disc\"] = \"");
+	    osb.append(mp.getDesc());
+	    osb.append("\",\n[\"events\"] = \" \"\n},\n},\n}");
 	}
 	osb.append("DKPInfo = {");
 	sfield("date").append(data.getInfo().getDate()).append(SEND);
@@ -77,7 +86,7 @@ public class WoWGetDKPClassicInterface extends WoWGetDKPInterface {
 	    for (MultidkpPoints mp : p.getPoints().getMultidkpPoints()) {
 
 		if (data.getMultidkpPools().getMultidkpPool().size() > 1) {
-		    mpName = multiDkpPools.get(mp.getMultidkpId()).getName();
+		    mpName = multiDkpPools.get(mp.getMultidkpId()).getSanitizedName();
 		}
 		field(mpName + "_earned").append(
 			data.getInfo().getWithTwink() == 1 ? mp.getPointsEarnedWithTwink() : mp.getPointsEarned())
