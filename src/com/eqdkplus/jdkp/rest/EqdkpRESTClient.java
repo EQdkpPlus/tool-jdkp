@@ -70,59 +70,6 @@ public class EqdkpRESTClient {
 	open = false;
     }
 
-    /**
-     * Returns the salt of the specified user.
-     * 
-     * @param user
-     *            username of the user for which the salt should be returned.
-     * @return the salt of the specified user.
-     * @throws SAXException
-     * @throws JAXBException
-     * @throws EQDKPException 
-     * @throws MalformedURLException
-     */
-    public String getSalt(String user) throws JAXBException, SAXException, EQDKPException {
-	if (!open) {
-	    throw new IllegalStateException("client is already closed.");
-	}
-	Response re = query("get_salt", "<request><user>" + user + "</user></request>");
-	if (re.getStatus().equals("0")) {
-	    throw new EQDKPException(re.getError());
-	}
-	return Base64.base64Decode(re.getSalt());
-    }
-    
-
-    /**
-     * Returns a Pair(sid,sid_end) for the specified login, both empty if the
-     * login failed.
-     * 
-     * @param user
-     *            username
-     * @param pw
-     *            password
-     * @return a Pair(sid,sid_end) for the specified login, both empty if the
-     *         login failed.
-     * @throws MalformedURLException
-     * @throws JAXBException
-     * @throws SAXException
-     * @throws EQDKPException 
-     */
-    public Pair<String, Long> login() throws JAXBException, SAXException, EQDKPException {
-	if (!open) {
-	    throw new IllegalStateException("client is already closed.");
-	}
-	Response re = query("login", "<request><user>" + p.getUsername() + "</user><password>" + p.getPassword()
-		+ "</password></request>");
-	if (re.getStatus().equals("0")) {
-	    if (re.getError().equals("access denied")) {
-		return new Pair<String,Long>("0",0L);
-	    }
-	    throw new EQDKPException(re.getError());
-	}
-	return new Pair<String, Long>(re.getSid(), re.getEnd());
-    }
-
     private Response query(String function, String xml) throws JAXBException, SAXException, EQDKPException {
 	String out = wr.queryParam("function", function).entity(xml).post(String.class);
 	try {
