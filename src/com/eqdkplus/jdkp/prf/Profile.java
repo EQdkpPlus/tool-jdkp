@@ -61,8 +61,9 @@ public class Profile implements Serializable, Comparable<Profile> {
     private File executePath;
     private int used;
     private File profileFile;
+    private String username;
+    private String password;
     private String token;
-    private Boolean withItems;
     
     @Override
     public boolean equals(Object o) {
@@ -77,17 +78,18 @@ public class Profile implements Serializable, Comparable<Profile> {
 		&& this.encoding.equals(p.encoding)
 		&& this.localPath.equals(p.localPath)
 		&& this.gameInterface.equals(p.gameInterface)
+		&& this.username.equals(p.username)
 		&& this.token.equals(p.token)
 		&& ((this.executePath == null && p.executePath == null)
 			|| (this.executePath != null && this.executePath.equals(p.executePath)) || (p.executePath != null && p.executePath
 			.equals(this.executePath)))
 		// connection timeout equality check because otherwise we can't
 		// change it in existing profile
-		&& this.connectionTimeout == p.connectionTimeout && this.withItems == p.withItems;
+		&& this.connectionTimeout == p.connectionTimeout;
     }
 
     public Profile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
-	    GameInterface gameInterface, File executePath, String token, Boolean withItems) {
+	    GameInterface gameInterface, File executePath, String username, String token) {
 	this.name = name;
 	this.eqdkpURL = eqdkpURL;
 	this.connectionTimeout = connectionTimeout;
@@ -97,23 +99,29 @@ public class Profile implements Serializable, Comparable<Profile> {
 	this.gi = gameInterface;
 	this.executePath = executePath;
 	this.used = 0;
-	this.withItems = withItems;
+	this.username = username;
 	this.token = token;
+	this.password = Control.EMPTY_STRING;
     }
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
-	    GameInterface gameInterface, File executePath, Boolean withItems) {
-    	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath, "", withItems); //$NON-NLS-1$
+	    GameInterface gameInterface, File executePath) {
+	return new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath,"", ""); //$NON-NLS-1$
     }
     
     public static Profile getProfile(String name, URL eqdkpURL, int connectionTimeout, String encoding, File localPath,
-	    GameInterface gameInterface, File executePath, String token, Boolean withItems) throws NoSuchAlgorithmException, JAXBException, SAXException, EQDKPException, FileNotFoundException, IOException {
+	    GameInterface gameInterface, File executePath, String username, String plainPassword, String token) throws NoSuchAlgorithmException, JAXBException, SAXException, EQDKPException, FileNotFoundException, IOException {
 	
-	Profile p = new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath, token, withItems);
+	Profile p = new Profile(name, eqdkpURL, connectionTimeout, encoding, localPath, gameInterface, executePath, username, token);
+	EqdkpRESTClient rest = new EqdkpRESTClient(p);
+	String encryptedPassword = DownloadControl.getEncryptedPassword(p.encoding, rest, username, plainPassword);
+	plainPassword=null;
+	p.setPassword(encryptedPassword);
+	rest.close();
 	return p;
     }
 
-    /*
+    /**
      * @return the name
      */
     public String getName() {
@@ -192,12 +200,20 @@ public class Profile implements Serializable, Comparable<Profile> {
     public int getUsed() {
 	return used;
     }
-    
+
     /**
-     * @return the used
+     * @return the username
      */
-    public boolean getWithItems() {
-    	return (this.withItems) ? true : false;
+    public String getUsername() {
+	return username;
+    }
+
+    /**
+     * @param username
+     *            the username to set
+     */
+    public void setUsername(String username) {
+	this.username = username;
     }
     
     /**
@@ -212,6 +228,21 @@ public class Profile implements Serializable, Comparable<Profile> {
      */
     public String getToken() {
     	return token; 
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+	return password;
+    }
+
+    /**
+     * @param password
+     *            the password to set
+     */
+    public void setPassword(String password) {
+	this.password = password;
     }
 
     public void isUsed() {
@@ -230,13 +261,16 @@ public class Profile implements Serializable, Comparable<Profile> {
 	}
     }
 
-    public void save(File dir, boolean valid) throws FileNotFoundException, IOException {	
-		dir.mkdirs();
-		FileOutputStream fos = new FileOutputStream(dir.getAbsolutePath() + '/' + name + FILE_EXTENSION);
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		oos.writeObject(this);
-		fos.close();
-		oos.close();
+    public void save(File dir, boolean valid) throws FileNotFoundException, IOException {
+	if (!valid) {
+	    this.password = Control.EMPTY_STRING;
+	}
+	dir.mkdirs();
+	FileOutputStream fos = new FileOutputStream(dir.getAbsolutePath() + '/' + name + FILE_EXTENSION);
+	ObjectOutputStream oos = new ObjectOutputStream(fos);
+	oos.writeObject(this);
+	fos.close();
+	oos.close();
     }
 
     public static Profile[] load(File directory) throws IOException {
