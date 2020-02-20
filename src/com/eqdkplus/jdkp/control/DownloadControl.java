@@ -46,7 +46,6 @@ import javax.xml.bind.UnmarshalException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import com.eqdkplus.jdkp.gui.AuthDialog;
 import com.eqdkplus.jdkp.gui.AuthTokenDialog;
 import com.eqdkplus.jdkp.gui.Gui;
 import com.eqdkplus.jdkp.gui.Messages;
@@ -69,19 +68,15 @@ public class DownloadControl extends Control<Void, Object> {
     private final Profile profile;
     private final Gui gui;
     private int contentLength;
-    private String plainPassword;
     private FileWriter logFile;
     private EqdkpRESTClient rest;
-    private String sid;
 
-    public DownloadControl(Profile profile, Gui gui, String plainPassword) {
-	this.profile = profile;
-	this.gui = gui;
-	this.contentLength = -1;
-	this.pendingErr = null;
-	this.plainPassword = plainPassword;
-	this.rest = null;
-	this.sid = Control.EMPTY_STRING;
+    public DownloadControl(Profile profile, Gui gui) {
+		this.profile = profile;
+		this.gui = gui;
+		this.contentLength = -1;
+		this.pendingErr = null;
+		this.rest = null;
     }
 
     private HttpURLConnection connect(URL url) throws IOException, EQDKPException {
@@ -197,8 +192,12 @@ public class DownloadControl extends Control<Void, Object> {
 	publish(String.format(Messages.getString("DownloadControl.downloadFrom"), url.getHost())); //$NON-NLS-1$
 
 	rest = new EqdkpRESTClient(profile);
-
-	url = new URL(url.toString() + "?function=points"); //$NON-NLS-1$
+	if(profile.getWithItems()) {
+		url = new URL(url.toString() + "?function=points&memberdata=items"); //$NON-NLS-1$
+	} else {
+		url = new URL(url.toString() + "?function=points"); //$NON-NLS-1$
+	}
+	
 
 	String dataString = null;
 	try {
@@ -251,140 +250,8 @@ public class DownloadControl extends Control<Void, Object> {
 	    if(!profile.getToken().equals(Control.EMPTY_STRING)) {
 	    	url = new URL(url.toString() + "&atoken=" + profile.getToken() + "&atype=api"); //$NON-NLS-1$
 	    	blnUseToken = true;
-	    } else {
-    		
-    		//Try if there is an salt method first (< EQdkp Plus 2.3)
-	    	Boolean blnThereIsSalt = false;
-    		try {
-    			String testsalt = rest.getSalt("test");
-    			blnThereIsSalt = true;
-    		} catch(Exception e) {
-    			
-    			if(e.getMessage().equals("function not found")){
-    				//We need an API Token here
-    				blnUseToken = true;
-    				
-    				 boolean a = false;
-    				    try {
-    				    	a = getTokenAuth(rest, url);
-    				    } catch (Exception ex) {
-    				    	publish(FAILED);
-    				    	pendingErr = ex;
-    				    	return;
-    				    }
-    				url = new URL(url.toString() + "&atoken=" + profile.getToken() + "&atype=api"); //$NON-NLS-1$
-    				gui.setToken(profile.getToken());
-    			}
-    		}
-	    	
-	    	
-	    if(blnThereIsSalt) {	
-	    if (!profile.getUsername().equals(Control.EMPTY_STRING) && profile.getPassword().equals(Control.EMPTY_STRING)) {
-
-			try {
-			    profile.setPassword(
-				    getEncryptedPassword(profile.getEncoding(), rest, profile.getUsername(), plainPassword));
-			} catch (Exception e) {
-			    publish(FAILED);
-			    pendingErr = e;
-			    return;
-			}
 	    }
-	    try {
-		sid = rest.login().getV1();
-		int round = 0;
-		while (sid.equals("0") && round < 3) { //$NON-NLS-1$
-		    // login info is wrong
-		    profile.setPassword(Control.EMPTY_STRING);
-		    rest = rest == null ? new EqdkpRESTClient(profile) : rest;
-		    // while (round < 3 && sid.equals(Control.EMPTY_STRING)) {
-		    boolean a = false;
-		    try {
-			a = getAuth(rest, url);
-		    } catch (Exception e) {
-			publish(FAILED);
-			pendingErr = e;
-			return;
-		    }
-		    if (!a) {
-			publish(FAILED);
-			publish(Messages.getString("DownloadControl.aborted")); //$NON-NLS-1$
-			return;
-		    }
-		    try {
-			sid = rest.login().getV1();
-		    } catch (Exception e) {
-			publish(FAILED);
-			pendingErr = e;
-			return;
-		    }
-		    round++;
-		}
-		gui.setUsername(profile.getUsername());
-		if (!profile.getPassword().equals(Control.EMPTY_STRING)) {
-		    gui.setPassword();
-		}
-		if (sid.equals(Control.EMPTY_STRING)) {
-		    profile.setPassword(Control.EMPTY_STRING);
-		    publish(Messages.getString("DownloadControl.authFailed")); //$NON-NLS-1$
-		    publish(FAILED);
-		    return;
-		}
-		// url = new URL(url.toString() + "&s=" + sid); //$NON-NLS-1$
-	    } catch (Exception e) {
-		publish(FAILED);
-		pendingErr = e;
-		return;
-	    }
-	    // }
-
-	    if (!sid.equals(Control.EMPTY_STRING)) {
-		url = new URL(url.toString() + "&s=" + sid); //$NON-NLS-1$
-	    }
-	    // } else {
-	    // //$NON-NLS-1$
-	    // }
-	    // conn = (HttpURLConnection) url.openConnection();
-	    // int rcode = conn.getResponseCode();
-	    // conn.disconnect();
-	    /*
-	     * **************************** access determination NOT via
-	     * response code!! if (rcode == 403) { assert
-	     * sid.equals(Control.EMPTY_STRING); // login info is wrong
-	     * profile.setPassword(Control.EMPTY_STRING); rest = rest == null ?
-	     * new EqdkpRESTClient(profile) : rest; int round = 0; while (round
-	     * < 3 && sid.equals(Control.EMPTY_STRING)) { boolean a = false; try
-	     * { a = getAuth(rest, url); } catch (Exception e) {
-	     * publish(FAILED); pendingErr = e; return; } if (!a) {
-	     * publish(FAILED);
-	     * publish(Messages.getString("DownloadControl.aborted"));
-	     * //$NON-NLS-1$ return; } try { sid = rest.login().getV1(); } catch
-	     * (Exception e) { publish(FAILED); pendingErr = e; return; }
-	     * round++; } gui.setUsername(profile.getUsername()); if
-	     * (!profile.getPassword().equals(Control.EMPTY_STRING)) {
-	     * gui.setPassword(); } if (sid.equals(Control.EMPTY_STRING)) {
-	     * profile.setPassword(Control.EMPTY_STRING);
-	     * publish(Messages.getString("DownloadControl.authFailed"));
-	     * //$NON-NLS-1$ publish(FAILED); return; } url = new
-	     * URL(url.toString() + "&s=" + sid); //$NON-NLS-1$ } if
-	     * (gui.getLastUsedProfile() != null) {
-	     * gui.getLastUsedProfile().setPassword(profile.getPassword());
-	     * gui.getLastUsedProfile().save(Control.PROFILE_PATH, true); }
-	     * profile.save(Control.PROFILE_PATH, true);
-	     * publish(String.format(Messages
-	     * .getString("DownloadControl.downloadFrom"), url.getHost()));
-	     * //$NON-NLS-1$ if (contentLength != -1) { publish(true); } conn =
-	     * (HttpURLConnection) url.openConnection(); rcode =
-	     * conn.getResponseCode(); conn.disconnect(); if (rcode == 403) {
-	     * publish(Messages.getString("DownloadControl.authFailed"));
-	     * //$NON-NLS-1$ publish(FAILED); pendingErr = new
-	     * EQDKPException(Messages
-	     * .getString("DownloadControl.notApprPerm")); //$NON-NLS-1$ return;
-	     * } **********************************************
-	     */
 	    
-	    }// end there is salt
-	    } //end if there is no token 
 	    publish(String.format(Messages.getString("DownloadControl.downloadFrom"), url.getHost())); //$NON-NLS-1$
 
 	    try {
@@ -436,7 +303,6 @@ public class DownloadControl extends Control<Void, Object> {
 	}
 
 	if (gui.getLastUsedProfile() != null) {
-	    gui.getLastUsedProfile().setPassword(profile.getPassword());
 	    gui.getLastUsedProfile().setToken(profile.getToken());
 	    gui.getLastUsedProfile().save(Control.PROFILE_PATH, true);
 	}
@@ -517,57 +383,6 @@ public class DownloadControl extends Control<Void, Object> {
 	}
 	return true;
     }
-
-    @SuppressWarnings("unused")
-    public static String getEncryptedPassword(String encoding, EqdkpRESTClient rest, String username,
-	    String plainPassword)
-	    throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
-	MessageDigest md = MessageDigest.getInstance("SHA-512"); //$NON-NLS-1$
-	if (DEBUG_LEVEL == 1) {
-	    System.out.println(username);
-	}
-	String salt = rest.getSalt(username);
-	if (DEBUG_LEVEL == 1) {
-	    System.out.println(salt);
-	}
-	byte[] mb = md.digest((salt + plainPassword).getBytes(encoding));
-	salt = null;
-	StringBuilder password = new StringBuilder();
-	for (byte b : mb) {
-	    String s = Integer.toHexString(b);
-	    while (s.length() < 2) {
-		s = "0" + s; //$NON-NLS-1$
-	    }
-	    s = s.substring(s.length() - 2);
-	    password.append(s);
-	}
-	if (DEBUG_LEVEL == 1) {
-	    System.out.println(password.toString());
-	}
-	return password.toString();
-    }
-
-    private boolean getAuth(EqdkpRESTClient rest, URL url)
-	    throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
-    	
-		AuthDialog ad = new AuthDialog(gui, url.getHost(), profile.getUsername());
-		ad.setVisible(true);
-		String user = ad.getUsername();
-		String pw = ad.getPassword();
-		// Pair<String, String> authInfo = ad.getAuthentication(); unsafe
-		if (user.equals(Control.EMPTY_STRING) || pw.equals(Control.EMPTY_STRING)) {
-		    user = null;
-		    pw = null;
-		    return false;
-		}
-		profile.setUsername(user);
-		profile.setPassword(getEncryptedPassword(profile.getEncoding(), rest, user, pw));
-	
-		ad.dispose();
-		user = null;
-		pw = null;
-		return true;
-    }
     
     private boolean getTokenAuth(EqdkpRESTClient rest, URL url)
     	throws NoSuchAlgorithmException, UnsupportedEncodingException, JAXBException, SAXException, EQDKPException {
@@ -619,19 +434,7 @@ public class DownloadControl extends Control<Void, Object> {
 	    }
 	}
 	if (rest != null) {
-	    try {
-		rest.logout(sid);
-		rest.close();
-	    } catch (JAXBException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    } catch (SAXException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    } catch (EQDKPException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
+	    rest.close();
 	}
 	try {
 	    profile.save(Control.PROFILE_PATH, true);

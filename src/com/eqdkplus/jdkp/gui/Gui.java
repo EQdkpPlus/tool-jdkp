@@ -39,6 +39,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -46,7 +47,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -66,9 +66,9 @@ public class Gui extends JFrame {
     private static final String EXCHANGE_PHP = "/api.php"; //$NON-NLS-1$
     private static final String ARROW_RIGHT = " >>"; //$NON-NLS-1$
     private static final String ARROW_LEFT = " <<"; //$NON-NLS-1$
-    private static final String JDKP_VERSION = "2.0.2"; //$NON-NLS-1$
+    private static final String JDKP_VERSION = "2.1.1"; //$NON-NLS-1$
     private static final String JDKP_LICENSE = "licensed under Creative Commons - Attribution Non-Commercial No Derivatives 3.0 Unported"; //$NON-NLS-1$
-    private static final String JDKP_COPYRIGHT = "JDKP &copy; 2011-2018 - Henrik 'kirax' Schmutz - kirax@eqdkp-plus.eu"; //$NON-NLS-1$
+    private static final String JDKP_COPYRIGHT = "JDKP &copy; 2011-2020 - Henrik 'kirax' Schmutz & GodMod - https://eqdkp-plus.eu"; //$NON-NLS-1$
     private static final String EQDKP = "EQDKP"; //$NON-NLS-1$
     private static final String MAINICON_PATH = "res/mainicon.png"; //$NON-NLS-1$
     private static final String JDKPICON_PATH = "/res/jdkp.png"; //$NON-NLS-1$
@@ -79,7 +79,6 @@ public class Gui extends JFrame {
     private static List<String> PROTOCOLS = new ArrayList<String>(Arrays.asList(new String[] {"http://", "https://"})); //$NON-NLS-1$ //$NON-NLS-2$
 
     private static final char QUOTE = '\"';
-    private boolean pwModified = false;
     private boolean executeFieldIsStd = false;
     private boolean localFieldIsStd = false;
     private boolean advancedVisible = false;
@@ -108,12 +107,8 @@ public class Gui extends JFrame {
     private JComboBox<Profile> profileChooser;
     private JButton advancedButton;
     private JLabel authLabel;
-    private JLabel usernameLabel;
-    private JTextField usernameField;
     private JLabel tokenLabel;
     private JTextField tokenField;
-    private JLabel passwordLabel;
-    private JPasswordField passwordField;
     private JLabel timeoutLabel;
     private JTextField timeoutField;
     private JButton downloadButton;
@@ -127,6 +122,8 @@ public class Gui extends JFrame {
     private JFileChooser fileChooser;
     private Job currentJob;
     private JLabel copyright;
+    private JLabel withItemsLabel;
+    private JCheckBox withItemsField;
 
     // ------------------------- end GUI -----------------------
 
@@ -211,14 +208,12 @@ public class Gui extends JFrame {
 	};
 	advancedButton = new JButton(Messages.getString("Gui.advanced") + ARROW_RIGHT); //$NON-NLS-1$
 	authLabel = new JLabel(Messages.getString("Gui.auth")); //$NON-NLS-1$
-	usernameLabel = new JLabel(Messages.getString("Gui.user")); //$NON-NLS-1$
-	usernameField = new JTextField();
-	passwordLabel = new JLabel(Messages.getString("Gui.pass")); //$NON-NLS-1$
-	passwordField = new JPasswordField();
 	timeoutLabel = new JLabel(Messages.getString("Gui.cTimeOut")); //$NON-NLS-1$
 	timeoutField = new JTextField();
 	tokenLabel = new JLabel(Messages.getString("Gui.token"));
-	tokenField = new JTextField();	
+	tokenField = new JTextField();
+	withItemsLabel = new JLabel(Messages.getString("Gui.withItems"));
+	withItemsField = new JCheckBox();
 	downloadButton = new JButton(Messages.getString("Gui.download")); //$NON-NLS-1$
 	hintLabel = new JLabel();
 	field = new JPanel();
@@ -243,8 +238,6 @@ public class Gui extends JFrame {
 	authfield.setVisible(false);
 	timeoutPanel.setVisible(false);
 	hintLabel.setVisible(false);
-	usernameLabel.setIcon(Control.USERICON);
-	passwordLabel.setIcon(Control.PASSICON);
 	tokenLabel.setIcon(Control.PASSICON);
 	timeoutLabel.setIcon(Control.CLOCK);
 	profileLabel.setIcon(Control.PROFILEICON);
@@ -297,18 +290,9 @@ public class Gui extends JFrame {
     }
 
     private void startDownload(Profile profile) {
-	String pw = new String(passwordField.getPassword());
-	if (pwModified) {
-	    if (!pw.equals(Control.EMPTY_STRING)) {
-		passwordField.setText(PW_DUMMY);
-	    } else {
-		profile.setPassword(Control.EMPTY_STRING);
-	    }
-	    pwModified = false;
-	}
-	DownloadControl ctrl = new DownloadControl(profile, this, pw.equals(PW_DUMMY) ? Control.EMPTY_STRING : pw);
-	pw = null;
-	ctrl.execute();
+	
+    	DownloadControl ctrl = new DownloadControl(profile, this);
+    	ctrl.execute();
     }
 
     private ActionListener getShowFileChooserActionListener(final JTextField target) {
@@ -411,15 +395,7 @@ public class Gui extends JFrame {
 	    formatChooser.setFont(formatChooser.getFont().deriveFont(Font.BOLD));
 	}
     }
-
-    public void setUsername(String user) {
-	this.usernameField.setText(user);
-    }
-
-    public void setPassword() {
-	this.passwordField.setText(PW_DUMMY);
-    }
-    
+   
     public void setToken(String token) {
     	this.tokenField.setText(token);
     }
@@ -443,12 +419,8 @@ public class Gui extends JFrame {
 	    } else {
 		localField.setText(Control.EMPTY_STRING);
 	    }
-	    usernameField.setText(p.getUsername());
 	    tokenField.setText(p.getToken());
-	    
-	    passwordField
-		    .setText(p.getPassword() == null || p.getPassword().equals(Control.EMPTY_STRING) ? Control.EMPTY_STRING
-			    : PW_DUMMY);
+	    withItemsField.setSelected(p.getWithItems());
 	    timeoutField
 		    .setText(p.getConnectionTimeout() == Control.DEFAULT_CONNECTION_TIMEOUT_MS ? Control.EMPTY_STRING
 			    : Integer.toString(p.getConnectionTimeout() / 1000));
@@ -599,27 +571,6 @@ public class Gui extends JFrame {
 	gbc.gridwidth = 4;
 	fl.setConstraints(authfield, gbc);
 	field.add(authfield);
-
-	gbc.gridy = 0;
-	gbc.weightx = 0;
-	gbc.gridwidth = 1;
-	gbc.insets = THREEZEROFIVE;
-	afl.setConstraints(usernameLabel, gbc);
-	authfield.add(usernameLabel);
-
-	gbc.insets = ZEROFIVEZEROFIVE;
-	gbc.weightx = 1;
-	afl.setConstraints(usernameField, gbc);
-	authfield.add(usernameField);
-
-	gbc.weightx = 0;
-	afl.setConstraints(passwordLabel, gbc);
-	authfield.add(passwordLabel);
-
-	gbc.insets = ZEROFIVEZEROZERO;
-	gbc.weightx = 1;
-	afl.setConstraints(passwordField, gbc);
-	authfield.add(passwordField);
 	
 	gbc.gridy = 2;
 	gbc.weightx = 0;
@@ -627,13 +578,27 @@ public class Gui extends JFrame {
 	gbc.insets = THREEZEROFIVE;
 	afl.setConstraints(tokenLabel, gbc);
 	authfield.add(tokenLabel);
-	
+		
 	//gbc.insets = ZEROFIVEZEROZERO;
 	gbc.weightx = 1;
 	gbc.weighty = 3;
 	gbc.gridwidth = 3;
 	afl.setConstraints(tokenField, gbc);
 	authfield.add(tokenField);
+	
+	gbc.gridy = 3;
+	gbc.weightx = 0;
+	gbc.gridwidth = 1;
+	gbc.insets = THREEZEROFIVE;
+	afl.setConstraints(withItemsLabel, gbc);
+	authfield.add(withItemsLabel);
+		
+	//gbc.insets = ZEROFIVEZEROZERO;
+	gbc.weightx = 1;
+	gbc.weighty = 3;
+	gbc.gridwidth = 3;
+	afl.setConstraints(withItemsField, gbc);
+	authfield.add(withItemsField);
 
 	gbc.insets = FOURFIVE;
 	gbc.weightx = 0;
@@ -786,12 +751,6 @@ public class Gui extends JFrame {
 		    showHint(Messages.getString("Gui.enterFile"), localField, Color.YELLOW); //$NON-NLS-1$
 		} else if (!timeoutField.getText().matches(REGEX_INTEGER)) {
 		    showHint(Messages.getString("Gui.enterInt"), timeoutField, Color.YELLOW); //$NON-NLS-1$
-		} else if (!usernameField.getText().equals(Control.EMPTY_STRING)
-			&& passwordField.getPassword().length == 0) {
-		    showHint(Messages.getString("Gui.enterPassword"), passwordField, Color.YELLOW); //$NON-NLS-1$
-		    if (!advancedVisible) {
-			advancedButton.doClick();
-		    }
 		} else {
 		    URL url = getFixedURL();
 		    File target = new File(localField.getText()).getAbsoluteFile();
@@ -802,7 +761,7 @@ public class Gui extends JFrame {
 			Profile currentProfile = new Profile(Control.LAST, url, timeoutField.getText().equals(
 				Control.EMPTY_STRING) ? DownloadControl.DEFAULT_CONNECTION_TIMEOUT_MS : Integer
 				.parseInt(timeoutField.getText()) * 1000, Control.CHARSET, target,
-				(GameInterface) formatChooser.getSelectedItem(), execute, usernameField.getText(), tokenField.getText());
+				(GameInterface) formatChooser.getSelectedItem(), execute, tokenField.getText(), withItemsField.isSelected());
 			Profile equalProfile = null;
 			// check whether we have a new profile and ask to save
 			// it
@@ -941,22 +900,7 @@ public class Gui extends JFrame {
 		}
 	    }
 	});
-	passwordField.getDocument().addDocumentListener(new DocumentListener() {
-	    @Override
-	    public void changedUpdate(DocumentEvent arg0) {
-		// ignore
-	    }
 
-	    @Override
-	    public void insertUpdate(DocumentEvent arg0) {
-		pwModified = true;
-	    }
-
-	    @Override
-	    public void removeUpdate(DocumentEvent arg0) {
-		pwModified = true;
-	    }
-	});
 	localField.getDocument().addDocumentListener(new DocumentListener() {
 	    @Override
 	    public void changedUpdate(DocumentEvent e) {

@@ -9,7 +9,6 @@ public class ProfileViewer {
 	Profile[] profiles = Profile.load(Control.PROFILE_PATH);
 	for (Profile p : profiles) {
 	    System.out.println(p.getInfo());
-	    System.out.println("Password: "+p.getPassword());
 	}
     }
 }
