@@ -29,6 +29,7 @@ import com.eqdkplus.jdkp.parse.bind.MultidkpPoints;
 import com.eqdkplus.jdkp.parse.bind.MultidkpPool;
 import com.eqdkplus.jdkp.parse.bind.Player;
 import com.eqdkplus.jdkp.parse.bind.Response;
+import com.eqdkplus.jdkp.util.RegistryReader;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 
@@ -229,8 +230,8 @@ public class WoWGetDKPInterface extends GameInterface {
 	if (standardWindowsExe == null) {
 	    String exe = "";
 	    try {
-	    	 exe = Advapi32Util.registryGetStringValue(
-	    	            WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Blizzard Entertainment\\World of Warcraft", "GamePath");
+	    	exe = Advapi32Util.registryGetStringValue(
+    	            WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Blizzard Entertainment\\World of Warcraft", "GamePath");
 
 	    } catch (Exception e) {
 		// ignore it
